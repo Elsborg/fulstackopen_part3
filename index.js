@@ -12,6 +12,7 @@ morgan.token("payload", function (request) {
 })
 
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :payload"))
+app.use(express.static('dist'))
 
 
 let persons = [
@@ -36,6 +37,7 @@ let persons = [
       "number": "39-23-6423122"
     }
 ]
+
   app.get('/info', (request, response) => {
     const personAmount = persons.length
     const dateTime = new Date()
