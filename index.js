@@ -5,14 +5,13 @@ const cors = require('cors')
 const app = express()
 
 app.use(express.json())
+app.use(cors())
 
-morgan.token('payload', function (request) {
+morgan.token("payload", function (request) {
     return JSON.stringify(request.body)
 })
 
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :payload"))
-
-app.use(cors())
 
 
 let persons = [
@@ -105,3 +104,4 @@ let persons = [
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
+  
