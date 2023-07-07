@@ -3,6 +3,7 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
+const Person = require('./models/person')
 
 app.use(express.json())
 app.use(cors())
@@ -15,28 +16,28 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :p
 app.use(express.static('dist'))
 
 
-let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
+// let persons = [
+//     { 
+//       "id": 1,
+//       "name": "Arto Hellas", 
+//       "number": "040-123456"
+//     },
+//     { 
+//       "id": 2,
+//       "name": "Ada Lovelace", 
+//       "number": "39-44-5323523"
+//     },
+//     { 
+//       "id": 3,
+//       "name": "Dan Abramov", 
+//       "number": "12-43-234345"
+//     },
+//     { 
+//       "id": 4,
+//       "name": "Mary Poppendieck", 
+//       "number": "39-23-6423122"
+//     }
+// ]
 
   app.get('/info', (request, response) => {
     const personAmount = persons.length
@@ -46,7 +47,9 @@ let persons = [
   })
   
   app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons.map(person => person.toJSON()))
+    })
   })
 
   app.get('/api/persons/:id', (request, response) => {
@@ -84,25 +87,24 @@ let persons = [
             error: 'number is missing'
         })
     } 
-    else if (persons.some(person => person.name === body.name)) {
-        return response.status(400).json({
-            error: 'person already exists'
-        })
-    }
+    // else if (persons.some(person => person.name === body.name)) {
+    //     return response.status(400).json({
+    //         error: 'person already exists'
+    //     })
+    // }
   
-    const person = {
-      id: generateId(),
+    const person = new Person({
       name: body.name,
-      number: body.number || false,
-    }
+      number: body.number,
+    })
   
-    persons = persons.concat(person)
-  
-    response.json(person)
+    person.save().then(response => {
+        response.json(person)
+    })
   })
 
 
-  const PORT = process.env.PORT || 3001
+  const PORT = process.env.PORT
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
